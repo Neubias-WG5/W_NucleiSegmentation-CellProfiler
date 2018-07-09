@@ -1,4 +1,4 @@
-FROM neubiaswg5/cellprofiler-base:v0.1
+FROM neubiaswg5/cellprofiler-base:latest
 
 ADD wrapper.py /app/wrapper.py
 
