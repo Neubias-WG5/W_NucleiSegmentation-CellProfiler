@@ -2,7 +2,7 @@ import sys
 import os
 from cytomine import CytomineJob
 from cytomine.models import *
-from subprocess import call
+from subprocess import run
 from shapely.geometry import Point
 
 
@@ -39,25 +39,40 @@ def main():
         tmpdir = os.path.join(working_path, "tmp")
         makedirs(tmpdir)
         pipeline = "/cp/CP_detect_nuclei.cppipe"
+        file_list = "/cp/file_list.txt"
 
         cj.job.update(progress=1, statusComment="Downloading images (to {})...".format(indir))
         image_instances = ImageInstanceCollection().fetch_with_filter("project", cj.project.id)
 
+        fh = open(file_list,"w")
         for image in image_instances:
             image.download(os.path.join(indir, "{id}.tif"))
+            fh.write(os.path.join(indir,"{}.tif").format(image.id)+"\n")
+        fh.close()
 
         cj.job.update(progress=25, statusComment="Launching workflow...")
 
         # Create call to cellprofiler and execute
-        shArgs = ["/CellProfiler/cellprofiler"]
-        #shArgs = ["cellprofiler -c -r -b --do-not-fetch"]
-        #shArgs.append(" -p "+pipeline)
-        #shArgs.append(" -i "+indir)
-        #shArgs.append(" -o "+outdir)
-        #shArgs.append(" -t "+tmpdir)
-        #shArgs.append(" --plugins-directory "+os.path.join("cp","data"))
+        shArgs = ["python"]
+        shArgs.append("/CellProfiler/CellProfiler.py")
+        shArgs.append("-c")
+        shArgs.append("-r")
+        shArgs.append("-b")
+        shArgs.append("--do-not-fetch")
+        shArgs.append("-p")
+        shArgs.append(pipeline)
+        shArgs.append("-i")
+        shArgs.append(indir)
+        shArgs.append("-o")
+        shArgs.append(outdir)
+        shArgs.append("-t")
+        shArgs.append(tmpdir)
+        shArgs.append("--plugins-directory")
+        shArgs.append(os.path.join("cp","data"))
+        shArgs.append("--file-list")
+        shArgs.append(file_list)
         
-        call(shArgs, shell=True)
+        run(" ".join(shArgs), shell=True)
         cj.job.update(progress=75, status_comment="Extracting polygons...")
         """
         annotations = AnnotationCollection()
