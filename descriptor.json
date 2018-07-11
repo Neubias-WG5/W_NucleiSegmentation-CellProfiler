@@ -5,7 +5,7 @@
     "image": "neubiaswg5/w_nucleisegmentation-cellprofiler",
     "type": "singularity"
   },
-  "command-line": "python wrapper.py CYTOMINE_HOST CYTOMINE_PUBLIC_KEY CYTOMINE_PRIVATE_KEY CYTOMINE_ID_PROJECT CYTOMINE_ID_SOFTWARE",
+  "command-line": "python wrapper.py CYTOMINE_HOST CYTOMINE_PUBLIC_KEY CYTOMINE_PRIVATE_KEY CYTOMINE_ID_PROJECT CYTOMINE_ID_SOFTWARE NUCLEI_MIN_DIAMETER NUCLEI_MAX_DIAMETER",
   "inputs": [
     {
       "id": "cytomine_host",
@@ -49,6 +49,24 @@
       "command-line-flag": "--@id",
       "name": "Cytomine software ID",
       "set-by-server": true,
+      "optional": false,
+      "type": "Number"
+    },
+    {
+      "id": "nuclei_min_diameter",
+      "value-key": "@ID",
+      "command-line-flag": "--@id",
+      "name": "Minimum nuclei diameter in pixels",
+      "set-by-server": false,
+      "optional": false,
+      "type": "Number"
+    },
+    {
+      "id": "nuclei_max_diameter",
+      "value-key": "@ID",
+      "command-line-flag": "--@id",
+      "name": "Maximum nuclei diameter in pixels",
+      "set-by-server": false,
       "optional": false,
       "type": "Number"
     }
