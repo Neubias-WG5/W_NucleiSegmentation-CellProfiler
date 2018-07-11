@@ -1,10 +1,11 @@
 import sys
 import os
+import imageio
 from cytomine import CytomineJob
 from cytomine.models import *
 from subprocess import run
-from shapely.geometry import Point
-
+from shapely.affinity import affine_transform
+from annotation_exporter import mask_to_objects_2d
 
 def makedirs(path):
     if not os.path.exists(path):
@@ -39,7 +40,7 @@ def main():
         tmpdir = os.path.join(working_path, "tmp")
         makedirs(tmpdir)
         pipeline = "/cp/CP_detect_nuclei.cppipe"
-        file_list = "/cp/file_list.txt"
+        file_list = os.path.join(tmpdir,"file_list.txt")
 
         cj.job.update(progress=1, statusComment="Downloading images (to {})...".format(indir))
         image_instances = ImageInstanceCollection().fetch_with_filter("project", cj.project.id)
@@ -47,7 +48,7 @@ def main():
         fh = open(file_list,"w")
         for image in image_instances:
             image.download(os.path.join(indir, "{id}.tif"))
-            fh.write(os.path.join(indir,"{}.tif").format(image.id)+"\n")
+            fh.write(os.path.join(indir,"{}.tif".format(image.id))+"\n")
         fh.close()
 
         cj.job.update(progress=25, statusComment="Launching workflow...")
@@ -68,33 +69,36 @@ def main():
         shArgs.append("-t")
         shArgs.append(tmpdir)
         shArgs.append("--plugins-directory")
-        shArgs.append(os.path.join("cp","data"))
+        shArgs.append("cp")
         shArgs.append("--file-list")
         shArgs.append(file_list)
         
         run(" ".join(shArgs), shell=True)
         cj.job.update(progress=75, status_comment="Extracting polygons...")
-        """
+        
         annotations = AnnotationCollection()
         for image in cj.monitor(image_instances, start=75, end=95, period=0.1, prefix="Upload annotations"):
-            file = str(image.id) + "_results.txt"
-            path = os.path.join(indir, file)
-            if os.path.isfile(path):
-                (X, Y) = readcoords(path)
-                for i in range(len(X)):
-                    center = Point(X[i], image.height - Y[i])
-                    annotations.append(Annotation(location=center.wkt, id_image=image.id,
-                                                  id_project=cj.parameters.cytomine_id_project))
+            resfn = str(image.id) + ".tif"
+            respath = os.path.join(outdir, resfn)
+            if os.path.isfile(respath):
+                img = imageio.imread(respath)
+                slices = mask_to_objects_2d(img)
+                for obj_slice in slices:
+                    annotations.append(Annotation(
+                        location=affine_transform(obj_slice.polygon, [1, 0, 0, -1, 0, image.height]).wkt,
+                        id_image=image.id, id_project=cj.parameters.cytomine_id_project,
+                        property=[{"key": "index", "value": str(obj_slice.label)}]
+                    ))
 
                     if len(annotations) % 100 == 0:
                         annotations.save()
                         annotations = AnnotationCollection()
             else:
-                print("No output file at '{}' for image with id:{}.".format(path, image.id), file=sys.stderr)
+                print("No output file at '{}' for image with id:{}.".format(respath, image.id), file=sys.stderr)
         
         # Save last annotations
         annotations.save()
-        """
+
         # Launch the metrics computation here
         # TODO
 
