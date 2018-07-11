@@ -11,21 +11,18 @@ def makedirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def readcoords(fname):
-    X = []
-    Y = []
-    F = open(fname, 'r')
-    i = 1
-    for index, l in enumerate(F.readlines()):
-        if index < 2: continue
-        t = l.split('\t')
-        print()
-        if len(t) > 1:
-            X.append(float(t[5]))
-            Y.append(float(t[6]))
-        i = i + 1
-    F.close()
-    return X, Y
+def parseCPparam(param, pipeline, tmpdir):
+    """
+    """
+    mod_pipeline = os.path.join(tmpdir,os.path.basename(pipeline))
+    rhdl = open(pipeline)
+    whdl = open(mod_pipeline,"w")
+    for line in rhdl:
+        whdl.write(line)
+
+    print("Parameters:")
+    print(param)
+    return mod_pipeline
 
 
 def main():
@@ -39,7 +36,8 @@ def main():
         makedirs(outdir)
         tmpdir = os.path.join(working_path, "tmp")
         makedirs(tmpdir)
-        pipeline = "/cp/CP_detect_nuclei.cppipe"
+        plugindir = "/app/plugins"
+        pipeline = "/app/CP_detect_nuclei.cppipe"
         file_list = os.path.join(tmpdir,"file_list.txt")
 
         cj.job.update(progress=1, statusComment="Downloading images (to {})...".format(indir))
@@ -51,6 +49,8 @@ def main():
             fh.write(os.path.join(indir,"{}.tif".format(image.id))+"\n")
         fh.close()
 
+        mod_pipeline = parseCPparam(cj.parameters, pipeline, tmpdir)
+
         cj.job.update(progress=25, statusComment="Launching workflow...")
 
         # Create call to cellprofiler and execute
@@ -61,7 +61,7 @@ def main():
         shArgs.append("-b")
         shArgs.append("--do-not-fetch")
         shArgs.append("-p")
-        shArgs.append(pipeline)
+        shArgs.append(mod_pipeline)
         shArgs.append("-i")
         shArgs.append(indir)
         shArgs.append("-o")
@@ -69,10 +69,10 @@ def main():
         shArgs.append("-t")
         shArgs.append(tmpdir)
         shArgs.append("--plugins-directory")
-        shArgs.append("cp")
+        shArgs.append(plugindir)
         shArgs.append("--file-list")
         shArgs.append(file_list)
-        
+
         run(" ".join(shArgs), shell=True)
         cj.job.update(progress=75, status_comment="Extracting polygons...")
         
