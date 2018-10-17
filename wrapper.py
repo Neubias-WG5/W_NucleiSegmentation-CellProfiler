@@ -11,17 +11,23 @@ def makedirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def parseCPparam(param, pipeline, tmpdir):
+def parseCPparam(cj, pipeline, tmpdir):
     """
     """
+    sp = cj.software.parameters
+    cpparams = {}
+    for param in sp:
+        cpparams[param['humanName']] = param['name']
+
     mod_pipeline = os.path.join(tmpdir,os.path.basename(pipeline))
     rhdl = open(pipeline)
     whdl = open(mod_pipeline,"w")
     for line in rhdl:
+        ar = line.split(":")
+        if ar[0].strip() in cpparams.keys():
+            line = ar[0] + ":" + str(getattr(cj.parameters,cpparams[ar[0].strip()]))+"\n"
         whdl.write(line)
 
-    print("Parameters:")
-    print(param)
     return mod_pipeline
 
 
@@ -49,7 +55,7 @@ def main():
             fh.write(os.path.join(indir,"{}.tif".format(image.id))+"\n")
         fh.close()
 
-        mod_pipeline = parseCPparam(cj.parameters, pipeline, tmpdir)
+        mod_pipeline = parseCPparam(cj, pipeline, tmpdir)
 
         cj.job.update(progress=25, statusComment="Launching workflow...")
 

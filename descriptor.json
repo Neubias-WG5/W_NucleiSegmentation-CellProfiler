@@ -59,7 +59,7 @@
       "name": "Typical diameter of objects, in pixel units (Min,Max)",
       "default": "15,40",
       "set-by-server": false,
-      "optional": false,
+      "optional": true,
       "type": "String"
     },
     {
@@ -69,7 +69,7 @@
       "name": "Size of smoothing filter",
       "default": 5,
       "set-by-server": false,
-      "optional": false,
+      "optional": true,
       "type": "Number"
     }
   ],
