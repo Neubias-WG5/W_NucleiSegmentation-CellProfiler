@@ -1,6 +1,7 @@
 import sys
 import os
 import imageio
+import cv2
 from cytomine import CytomineJob
 from cytomine.models import *
 from subprocess import run
@@ -60,25 +61,10 @@ def main():
         cj.job.update(progress=25, statusComment="Launching workflow...")
 
         # Create call to cellprofiler and execute
-        shArgs = ["python"]
-        shArgs.append("/CellProfiler/CellProfiler.py")
-        shArgs.append("-c")
-        shArgs.append("-r")
-        shArgs.append("-b")
-        shArgs.append("--do-not-fetch")
-        shArgs.append("-p")
-        shArgs.append(mod_pipeline)
-        shArgs.append("-i")
-        shArgs.append(indir)
-        shArgs.append("-o")
-        shArgs.append(outdir)
-        shArgs.append("-t")
-        shArgs.append(tmpdir)
-        shArgs.append("--plugins-directory")
-        shArgs.append(plugindir)
-        shArgs.append("--file-list")
-        shArgs.append(file_list)
-
+        shArgs = [
+            "python", "/CellProfiler/CellProfiler.py", "-c", "-r", "-b", "--do-not-fetch", "-p", mod_pipeline,
+            "-i", indir, "-o", outdir, "-t", tmpdir, "--plugins-directory", plugindir, "--file-list", file_list
+        ]
         run(" ".join(shArgs), shell=True)
         cj.job.update(progress=75, status_comment="Extracting polygons...")
         
@@ -89,6 +75,7 @@ def main():
             if os.path.isfile(respath):
                 img = imageio.imread(respath)
                 slices = mask_to_objects_2d(img)
+
                 for obj_slice in slices:
                     annotations.append(Annotation(
                         location=affine_transform(obj_slice.polygon, [1, 0, 0, -1, 0, image.height]).wkt,
