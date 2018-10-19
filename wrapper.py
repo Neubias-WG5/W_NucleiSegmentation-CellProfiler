@@ -7,6 +7,7 @@ from cytomine.models import *
 from subprocess import run
 from shapely.affinity import affine_transform
 from annotation_exporter import mask_to_objects_2d
+from neubiaswg5.metrics import computemetrics_batch
 
 def makedirs(path):
     if not os.path.exists(path):
@@ -36,34 +37,49 @@ def main():
     base_path = "{}".format(os.getenv("HOME")) # Mandatory for Singularity
 
     with CytomineJob.from_cli(sys.argv[1:]) as cj:
+        cj.job.update(status=Job.RUNNING, progress=0, statusComment="Initialisation...")
+        
         working_path = os.path.join(base_path, "data", str(cj.job.id))
-        indir = os.path.join(working_path, "in")
-        makedirs(indir)
-        outdir = os.path.join(working_path, "out")
-        makedirs(outdir)
-        tmpdir = os.path.join(working_path, "tmp")
-        makedirs(tmpdir)
+        gt_suffix = "_lbl"
+        in_path = os.path.join(working_path, "in")
+        out_path = os.path.join(working_path, "out")
+        tmp_path = os.path.join(working_path, "tmp")
+        gt_path = os.path.join(working_path, "gt")
         plugindir = "/app/plugins"
         pipeline = "/app/CP_detect_nuclei.cppipe"
-        file_list = os.path.join(tmpdir,"file_list.txt")
+        file_list = os.path.join(tmp_path,"file_list.txt")
+        if not os.path.exists(working_path):
+            makedirs(in_path)
+            makedirs(out_path)
+            makedirs(tmp_path)
+            makedirs(gt_path)
 
-        cj.job.update(progress=1, statusComment="Downloading images (to {})...".format(indir))
-        image_instances = ImageInstanceCollection().fetch_with_filter("project", cj.project.id)
+        cj.job.update(progress=1, statusComment="Downloading images (to {})...".format(in_path))
+        image_instances = ImageInstanceCollection().fetch_with_filter("project", cj.parameters.cytomine_id_project)
+        input_images = [i for i in image_instances if gt_suffix not in i.originalFilename]
+        gt_images = [i for i in image_instances if gt_suffix in i.originalFilename]
 
+        # Download images and write path to CP input file
         fh = open(file_list,"w")
-        for image in image_instances:
-            image.download(os.path.join(indir, "{id}.tif"))
-            fh.write(os.path.join(indir,"{}.tif".format(image.id))+"\n")
+        for image in input_images:
+            image.download(os.path.join(in_path, "{id}.tif"))
+            fh.write(os.path.join(in_path,"{}.tif".format(image.id))+"\n")
         fh.close()
 
-        mod_pipeline = parseCPparam(cj, pipeline, tmpdir)
+        for gt_image in gt_images:
+            related_name = gt_image.originalFilename.replace(gt_suffix, '')
+            related_image = [i for i in input_images if related_name == i.originalFilename]
+            if len(related_image) == 1:
+                gt_image.download(os.path.join(gt_path, "{}.tif".format(related_image[0].id)))
 
+        # Run CellProfiler pipeline
         cj.job.update(progress=25, statusComment="Launching workflow...")
-
+        mod_pipeline = parseCPparam(cj, pipeline, tmp_path)
+        
         # Create call to cellprofiler and execute
         shArgs = [
             "python", "/CellProfiler/CellProfiler.py", "-c", "-r", "-b", "--do-not-fetch", "-p", mod_pipeline,
-            "-i", indir, "-o", outdir, "-t", tmpdir, "--plugins-directory", plugindir, "--file-list", file_list
+            "-i", in_path, "-o", out_path, "-t", tmp_path, "--plugins-directory", plugindir, "--file-list", file_list
         ]
         run(" ".join(shArgs), shell=True)
         cj.job.update(progress=75, status_comment="Extracting polygons...")
@@ -71,7 +87,7 @@ def main():
         annotations = AnnotationCollection()
         for image in cj.monitor(image_instances, start=75, end=95, period=0.1, prefix="Upload annotations"):
             resfn = str(image.id) + ".tif"
-            respath = os.path.join(outdir, resfn)
+            respath = os.path.join(out_path, resfn)
             if os.path.isfile(respath):
                 img = imageio.imread(respath)
                 slices = mask_to_objects_2d(img)
@@ -93,7 +109,19 @@ def main():
         annotations.save()
 
         # Launch the metrics computation here
-        # TODO
+        cj.job.update(progress=90, statusComment="Computing and uploading metrics...")
+        
+        outfiles, reffiles = zip(*[
+            (os.path.join(out_path, "{}.tif".format(image.id)),
+             os.path.join(gt_path, "{}.tif".format(image.id)))
+            for image in input_images
+        ])
+
+        results = computemetrics_batch(outfiles, reffiles, "ObjSeg", tmp_path)
+
+        for key, value in results.items():
+            Property(cj.job, key=key, value=str(value)).save()
+        Property(cj.job, key="IMAGE_INSTANCES", value=str([im.id for im in input_images])).save()
 
         cj.job.update(progress=100, status=Job.TERMINATED, status_comment="Finished.")
 
