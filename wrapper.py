@@ -54,7 +54,7 @@ def main():
             makedirs(tmp_path)
             makedirs(gt_path)
 
-        cj.job.update(progress=1, statusComment="Downloading images (to {})...".format(in_path))
+        cj.job.update(progress=5, statusComment="Downloading images (to {})...".format(in_path))
         image_instances = ImageInstanceCollection().fetch_with_filter("project", cj.parameters.cytomine_id_project)
         input_images = [i for i in image_instances if gt_suffix not in i.originalFilename]
         gt_images = [i for i in image_instances if gt_suffix in i.originalFilename]
@@ -85,7 +85,7 @@ def main():
         cj.job.update(progress=75, status_comment="Extracting polygons...")
         
         annotations = AnnotationCollection()
-        for image in cj.monitor(image_instances, start=75, end=95, period=0.1, prefix="Upload annotations"):
+        for image in cj.monitor(image_instances, start=75, end=90, period=0.1, prefix="Upload annotations"):
             resfn = str(image.id) + ".tif"
             respath = os.path.join(out_path, resfn)
             if os.path.isfile(respath):
