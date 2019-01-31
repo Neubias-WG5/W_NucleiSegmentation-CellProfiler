@@ -57,7 +57,8 @@
       "value-key": "@ID",
       "command-line-flag": "--@id",
       "name": "Typical diameter of objects, in pixel units (Min,Max)",
-      "default": "15,40",
+      "description": "Typical diameter of objects, in pixel units (Min,Max)",
+      "default-value": "15,40",
       "set-by-server": false,
       "optional": true,
       "type": "String"
@@ -67,7 +68,8 @@
       "value-key": "@ID",
       "command-line-flag": "--@id",
       "name": "Size of smoothing filter",
-      "default": 5,
+      "description": "Size of smoothing filter",
+      "default-value": 5,
       "set-by-server": false,
       "optional": true,
       "type": "Number"

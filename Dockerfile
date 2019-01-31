@@ -1,4 +1,4 @@
-FROM neubiaswg5/cellprofiler-base:latest
+FROM neubiaswg5/cellprofiler-base
 
 ADD wrapper.py /app/wrapper.py
 ADD CP_detect_nuclei.cppipe /app/CP_detect_nuclei.cppipe
