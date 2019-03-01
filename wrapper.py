@@ -5,10 +5,6 @@ from subprocess import call
 from neubiaswg5 import CLASS_OBJSEG
 from neubiaswg5.helpers import NeubiasJob, prepare_data, upload_data, upload_metrics
 
-def makedirs(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
 def parseCPparam(nj, pipeline, tmpdir):
     """
     """
@@ -38,14 +34,11 @@ def main(argv):
         # 1. Prepare data for workflow
         in_imgs, gt_imgs, in_path, gt_path, out_path, tmp_path = prepare_data(problem_cls, nj, is_2d=True, **nj.flags)
 
-        working_path = os.path.join(base_path, "data", str(nj.job.id))
-        gt_suffix = "_lbl"
         plugindir = "/app/plugins"
         pipeline = "/app/CP_detect_nuclei.cppipe"
         file_list = os.path.join(tmp_path,"file_list.txt")
         fh = open(file_list,"w")
         for image in in_imgs:
-            #image.download(os.path.join(in_path, "{id}.tif"))
             fh.write(os.path.join(in_path,"{}.tif".format(image.id))+"\n")
         fh.close()
 
@@ -58,7 +51,6 @@ def main(argv):
             "-i", in_path, "-o", out_path, "-t", tmp_path, "--plugins-directory", plugindir, "--file-list", file_list
         ]
         return_code = call(" ".join(shArgs), shell=True, cwd="/CellProfiler")
-        nj.job.update(progress=75, status_comment="Extracting polygons...")
 
         if return_code != 0:
             err_desc = "Failed to execute the CellProfiler pipeline (return code: {})".format(return_code)
