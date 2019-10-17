@@ -5,10 +5,10 @@
     "image": "neubiaswg5/w_nucleisegmentation-cellprofiler",
     "type": "singularity"
   },
-  "command-line": "python wrapper.py HOST PUBLIC_KEY PRIVATE_KEY PROJECT_ID SOFTWARE_ID NUCLEI_DIAMETER_RANGE SIZE_SMOOTHING_FILTER",
+  "command-line": "python wrapper.py CYTOMINE_HOST CYTOMINE_PUBLIC_KEY CYTOMINE_PRIVATE_KEY CYTOMINE_ID_PROJECT CYTOMINE_ID_SOFTWARE NUCLEI_DIAMETER_RANGE SIZE_SMOOTHING_FILTER",
   "inputs": [
     {
-      "id": "host",
+      "id": "cytomine_host",
       "value-key": "@ID",
       "command-line-flag": "--@id",
       "name": "BIAFLOWS host",
@@ -17,7 +17,7 @@
       "type": "String"
     },
     {
-      "id": "public_key",
+      "id": "cytomine_public_key",
       "value-key": "@ID",
       "command-line-flag": "--@id",
       "name": "BIAFLOWS public key",
@@ -26,7 +26,7 @@
       "type": "String"
     },
     {
-      "id": "private_key",
+      "id": "cytomine_private_key",
       "value-key": "@ID",
       "command-line-flag": "--@id",
       "name": "BIAFLOWS private key",
@@ -35,7 +35,7 @@
       "type": "String"
     },
     {
-      "id": "project_id",
+      "id": "cytomine_id_project",
       "value-key": "@ID",
       "command-line-flag": "--@id",
       "name": "BIAFLOWS project ID",
@@ -44,7 +44,7 @@
       "type": "Number"
     },
     {
-      "id": "software_id",
+      "id": "cytomine_id_software",
       "value-key": "@ID",
       "command-line-flag": "--@id",
       "name": "BIAFLOWS software ID",
