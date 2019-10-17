@@ -39,7 +39,7 @@ def main(argv):
         file_list = os.path.join(tmp_path,"file_list.txt")
         fh = open(file_list,"w")
         for image in in_imgs:
-            fh.write(os.path.join(in_path,"{}.tif".format(image.id))+"\n")
+            fh.write(image.filepath+"\n")
         fh.close()
 
         # 2. Run CellProfiler pipeline
@@ -47,10 +47,10 @@ def main(argv):
         mod_pipeline = parseCPparam(nj, pipeline, tmp_path)
         
         shArgs = [
-            "python", "/CellProfiler/CellProfiler.py", "-c", "-r", "-b", "--do-not-fetch", "-p", mod_pipeline,
+            "python", "/app/CellProfiler/CellProfiler.py", "-c", "-r", "-b", "--do-not-fetch", "-p", mod_pipeline,
             "-i", in_path, "-o", out_path, "-t", tmp_path, "--plugins-directory", plugindir, "--file-list", file_list
         ]
-        return_code = call(" ".join(shArgs), shell=True, cwd="/CellProfiler")
+        return_code = call(" ".join(shArgs), shell=True, cwd="/app/CellProfiler")
 
         if return_code != 0:
             err_desc = "Failed to execute the CellProfiler pipeline (return code: {})".format(return_code)
