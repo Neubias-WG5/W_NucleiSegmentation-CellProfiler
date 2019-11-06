@@ -27,6 +27,7 @@ RUN pip install --upgrade setuptools==38.0
 RUN pip install numpy==1.14.0 && \
     pip install networkx==2.2 && \
     pip install matplotlib==2.2.3 && \
+    pip install PyWavelets==0.5.0 && \
     pip install scikit-image==0.14.0 && \
     pip install pandas==0.24.2 && \
     pip install scikit-learn==0.20.1 && \
