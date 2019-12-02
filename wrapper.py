@@ -57,7 +57,7 @@ def main(argv):
             nj.job.update(progress=50, statusComment=err_desc)
             raise ValueError(err_desc)
 
-        # 3. Upload data to Cytomine
+        # 3. Upload data to BIAFLOWS
         upload_data(problem_cls, nj, in_imgs, out_path, **nj.flags, monitor_params={
             "start": 60, "end": 90, "period": 0.1,
             "prefix": "Extracting and uploading polygons from masks"})
