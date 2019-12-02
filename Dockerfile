@@ -12,9 +12,9 @@ RUN apt-get update -y   && \
         libxml2-dev        \
         libxslt1-dev       \
         openjdk-8-jdk      \
+	libssl-dev	   \
         python-dev         \
         python-pip         \
-        python-mysqldb     \
         python-scipy       \
         python-vigra       \
         python-wxgtk3.0    \
