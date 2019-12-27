@@ -31,7 +31,8 @@ RUN pip install numpy==1.14.0 && \
     pip install scikit-image==0.14.0 && \
     pip install pandas==0.24.2 && \
     pip install scikit-learn==0.20.1 && \
-    pip install dask==1.2.2
+    pip install dask==1.2.2 && \
+    pip install hmmlearn==0.2.2
 
 RUN mkdir /app
 RUN cd /app && git clone https://github.com/CellProfiler/CellProfiler.git
