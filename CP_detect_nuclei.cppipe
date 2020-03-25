@@ -87,9 +87,9 @@ IdentifyPrimaryObjects:[module_num:7|svn_version:\'Unknown\'|variable_revision_n
     Discard objects outside the diameter range?:Yes
     Try to merge too small objects with nearby larger objects?:No
     Discard objects touching the border of the image?:No
-    Method to distinguish clumped objects:Laplacian of Gaussian
-    Method to draw dividing lines between clumped objects:Propagate
-    Size of smoothing filter:5
+    Method to distinguish clumped objects:Shape
+    Method to draw dividing lines between clumped objects:Shape
+    Size of smoothing filter:3
     Suppress local maxima that are closer than this minimum allowed distance:7
     Speed up by using lower-resolution image to find local maxima?:No
     Name the outline image:NucleiOutlines
@@ -106,8 +106,8 @@ IdentifyPrimaryObjects:[module_num:7|svn_version:\'Unknown\'|variable_revision_n
     Threshold setting version:2
     Threshold strategy:Global
     Thresholding method:Otsu
-    Select the smoothing method for thresholding:Automatic
-    Threshold smoothing scale:1.0
+    Select the smoothing method for thresholding:No smoothing
+    Threshold smoothing scale:0.5
     Threshold correction factor:1.0
     Lower and upper bounds on threshold:0.0,1.0
     Approximate fraction of image covered by objects?:0.01
