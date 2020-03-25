@@ -28,18 +28,21 @@ RUN pip install numpy==1.14.0 && \
     pip install networkx==2.2 && \
     pip install matplotlib==2.2.3 && \
     pip install PyWavelets==0.5.0 && \
+    pip install pillow==5.0.0 && \
     pip install scikit-image==0.14.0 && \
     pip install pandas==0.24.2 && \
     pip install scikit-learn==0.20.1 && \
     pip install dask==1.2.2 && \
-    pip install hmmlearn==0.2.2
+    pip install hmmlearn==0.2.2 && \
+    pip install centrosome==1.0.4
 
 RUN mkdir /app
 RUN cd /app && git clone https://github.com/CellProfiler/CellProfiler.git
 RUN cd /app/CellProfiler && git checkout 2.2.0 && python2.7 -m pip install --editable .
 
 # Install Python3.6
-RUN apt-get install -y software-properties-common python-software-properties
+RUN apt-get update -y && \
+    apt-get install -y software-properties-common python-software-properties
 
 RUN add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update -y && \
