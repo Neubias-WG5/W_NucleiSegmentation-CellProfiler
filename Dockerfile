@@ -26,6 +26,7 @@ RUN pip install --upgrade setuptools==38.0
 # Specify versions that support Python2.7
 RUN pip install numpy==1.14.0 && \
     pip install networkx==2.2 && \
+    pip install kiwisolver==1.0.1 && \
     pip install matplotlib==2.2.3 && \
     pip install PyWavelets==0.5.0 && \
     pip install pillow==5.0.0 && \
