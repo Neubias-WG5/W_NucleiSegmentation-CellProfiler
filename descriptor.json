@@ -58,7 +58,7 @@
       "command-line-flag": "--@id",
       "name": "Typical diameter of objects, in pixel units (Min,Max)",
       "description": "Typical diameter of objects, in pixel units (Min,Max)",
-      "default-value": "15,40",
+      "default-value": "15,4000",
       "set-by-server": false,
       "optional": true,
       "type": "String"
