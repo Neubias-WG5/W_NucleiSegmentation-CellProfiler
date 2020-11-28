@@ -25,6 +25,7 @@ RUN apt-get update -y   && \
 RUN pip install --upgrade setuptools==38.0
 # Specify versions that support Python2.7
 RUN pip install numpy==1.14.0 && \
+    pip install h5py==2.8.0 && \
     pip install networkx==2.2 && \
     pip install kiwisolver==1.0.1 && \
     pip install matplotlib==2.2.3 && \
@@ -35,7 +36,8 @@ RUN pip install numpy==1.14.0 && \
     pip install scikit-learn==0.20.1 && \
     pip install dask==1.2.2 && \
     pip install hmmlearn==0.2.2 && \
-    pip install centrosome==1.0.4
+    pip install centrosome==1.0.4 && \
+    pip install python-bioformats==1.5.0
 
 RUN mkdir /app
 RUN cd /app && git clone https://github.com/CellProfiler/CellProfiler.git
