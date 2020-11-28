@@ -25,7 +25,7 @@ RUN apt-get update -y   && \
 RUN pip install --upgrade setuptools==38.0
 # Specify versions that support Python2.7
 RUN pip install numpy==1.14.0 && \
-    pip install h5py==2.8.0 && \
+    pip install h5py==2.7.0 && \
     pip install networkx==2.2 && \
     pip install kiwisolver==1.0.1 && \
     pip install matplotlib==2.2.3 && \
